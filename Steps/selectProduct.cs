@@ -1,6 +1,7 @@
 using System;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
+using OpenQA.Selenium.DevTools.V135.Runtime;
 using TechTalk.SpecFlow;
 using WebDriverManager;
 using WebDriverManager.DriverConfigs.Impl;
@@ -15,7 +16,7 @@ namespace MyNamespace
 
         public StepDefinitions(ScenarioContext scenarioContext)
         {
-            _scenarioContext = scenarioContext;
+            
         }
 
         [BeforeScenario] // o before serve pra apontar o momento da execução. fazer antes do cenário, antes da feature, etc.
@@ -36,55 +37,63 @@ namespace MyNamespace
         [Given(@"que acesso a página inicial do site")]
         public void DadoQueAcessoAPaginaInicialDoSite()
         {
-            _scenarioContext.Pending();
+           driver.Navigate().GoToUrl("https://www.saucedemo.com/");
         }
 
-        [When(@"preencho o usuário ""(.*)""")]
-        public void QuandoPreenchoOUsuario(string p0)
+        [When(@"preencho o usuário ""(.*)""")] // ""(.*)""" é um extrator, ele tira o conteúdo do que está entre aspas.
+                                               // por exemplo, "standarduser" em "preencho o usuário "standard_user""
+                                            // isso é útil porque se precisar alterar algum dado, é só ir direto no .feature
+        public void QuandoPreenchoOUsuario(string username)
         {
-            _scenarioContext.Pending();
+            driver.FindElement(By.Id("user-name")).SendKeys(username);
         }
 
         [When(@"a senha ""(.*)"" e clico no botao Login")]
-        public void QuandoASenhaEClicoNoBotaoLogin(string p0)
+        public void QuandoASenhaEClicoNoBotaoLogin(string password)
         {
-            _scenarioContext.Pending();
+            driver.FindElement(By.Id("password")).SendKeys(password);
+            driver.FindElement(By.Id("login-button")).Click();
         }
 
         [When(@"adiciono o produto ""(.*)"" ao carrinho")]
-        public void QuandoAdicionoOProdutoAoCarrinho(string p0)
+        public void QuandoAdicionoOProdutoAoCarrinho(string product)
         {
-            _scenarioContext.Pending();
+            String productSelector = "add-to-cart-" + product.ToLower().Replace(" ", "-");
+            Console.WriteLine($"Seletor de Produto = {productSelector}");
+            driver.FindElement(By.Id(productSelector)).Click();
+            // nesse caso está sendo necessário adicionar um id dinâmico, pois cada produto tem um botão
+            // id da mochila: add-to-cart-sauce-labs-backpack, id da lanterna: add-to-cart-sauce-labs-bike-light
+            // além disso, o texto no feature está com maisculas e o id em minusculas e hifens (product.ToLower(); o replace é para trocar o espaço por -)
         }
 
         [When(@"clico no icone do carrinho de compras")]
         public void QuandoClicoNoIconeDoCarrinhoDeCompras()
         {
-            _scenarioContext.Pending();
+            driver.FindElement(By.Id("shopping_cart_container")).Click();
         }
 
         [Then(@"exibe ""(.*)"" no titulo da secao")]
-        public void EntaoExibeNoTituloDaSecao(string products0)
+        public void EntaoExibeNoTituloDaSecao(string title)
         {
-            _scenarioContext.Pending();
+            Assert.That(driver.FindElement(By.CssSelector("span.title")).Text, Is.EqualTo(title));
         }
 
         [Then(@"exibe a pagina do carrinho com a quantidade como ""(.*)""")]
-        public void EntaoExibeAPaginaDoCarrinhoComAQuantidadeComo(string p0)
+        public void EntaoExibeAPaginaDoCarrinhoComAQuantidadeComo(string quantity)
         {
-            _scenarioContext.Pending();
-        }
+            Assert.That(driver.FindElement(By.CssSelector("div.cart_quantity")).Text, Is.EqualTo(quantity));
+       }
 
         [Then(@"nome do produto ""(.*)""")]
-        public void EntaoNomeDoProduto(string p0)
+        public void EntaoNomeDoProduto(string product)
         {
-            _scenarioContext.Pending();
+            Assert.That(driver.FindElement(By.CssSelector("div.inventory_item_name")).Text, Is.EqualTo(product));
         }
 
         [Then(@"o preco como ""(.*)""")]
-        public void EntaoOPrecoComo(string p0)
+        public void EntaoOPrecoComo(string price)
         {
-            _scenarioContext.Pending();
+            Assert.That(driver.FindElement(By.CssSelector("div.inventory_item_price")).Text, Is.EqualTo(price));
         }
     }
 }
